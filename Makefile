@@ -7,5 +7,11 @@ install_linters:
 	pre-commit install --hook-type commit-msg
 	pre-commit autoupdate
 
+
+migrate:
+	alembic upgrade head
+
 init_db:
 	docker-compose up --build db
+	make install_requirements
+	make migrate

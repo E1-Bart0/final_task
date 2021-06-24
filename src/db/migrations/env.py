@@ -5,7 +5,8 @@ from alembic import context
 from sqlalchemy import engine_from_config, pool
 
 sys.path = ["", "../.."] + sys.path[1:]
-from src.db.core import URL, Base  # noqa: E402
+from src.db.core import URL
+from src.db.core.base import Base
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

@@ -17,5 +17,7 @@ per-file-ignores =
     base.py: F401
     # Skip class attribute as a python builtins in DB models
     models.py: A003
+    # Skip import not in top
+    env.py: E402
 
 doctests = True

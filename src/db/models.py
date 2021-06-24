@@ -1,49 +1,25 @@
-from datetime import datetime
-
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Text
+from sqlalchemy import Column, ForeignKey, Integer, String, UniqueConstraint, Index
 from sqlalchemy.orm import relationship
 
 from src.db.core.connect_to_db import Base
 
 
-class Human(Base):
-    __abstract__ = True
-    __tablename__ = None
-
+class Author(Base):
+    __tablename__ = "author"
     id = Column(Integer, primary_key=True)
-    first_name = Column(String(30))
-    last_name = Column(String(30))
+    full_name = Column(String(60), index=True, unique=True, nullable=False)
+    book = relationship("Book")
 
 
-class Student(Human):
-    __tablename__ = "student"
-
-
-class Teacher(Human):
-    __tablename__ = "teacher"
-    homework_done = relationship("HomeworkResult")
-
-
-class Homework(Base):
-    __tablename__ = "homework"
+class Book(Base):
+    __tablename__ = "book"
     id = Column(Integer, primary_key=True)
-    text = Column(Text)
-    created = Column(DateTime, default=datetime.now())
-    deadline = Column(Integer)
-    homework_result = relationship(
-        "HomeworkResult", uselist=False, back_populates="homework"
+    name = Column(String(50), nullable=False, index=True)
+    year = Column(Integer, nullable=True, index=True)
+    author_id = Column(Integer, ForeignKey("author.id"), nullable=True)
+
+    # unique constraints across multiple columns and Indexing by name, year, author
+    __table_args__ = (
+        UniqueConstraint("name", "year", "author_id", name="_books_uc"),
+        Index("_book_index", "name", "year", "author_id"),
     )
-
-
-class HomeworkResult(Base):
-    __tablename__ = "homework_result"
-    id = Column(Integer, primary_key=True)
-    solution = Column(Text)
-    author_id = Column(Integer, ForeignKey("student.id", ondelete="CASCADE"))
-    author = relationship("Student")
-    created = Column(DateTime, default=datetime.now())
-    teacher_id = Column(
-        Integer, ForeignKey("teacher.id", ondelete="CASCADE"), nullable=True
-    )
-    homework_id = Column(Integer, ForeignKey("homework.id"))
-    homework = relationship("Homework", back_populates="homework_result")
