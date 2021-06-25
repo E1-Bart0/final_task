@@ -1,8 +1,8 @@
-"""Book and Author
+"""empty message
 
-Revision ID: 51cb8d860fa6
+Revision ID: 399e958d44a2
 Revises:
-Create Date: 2021-06-24 17:06:32.265190
+Create Date: 2021-06-25 20:10:11.706751
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = "51cb8d860fa6"
+revision = "399e958d44a2"
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -31,12 +31,16 @@ def upgrade():
         sa.Column("name", sa.String(length=50), nullable=False),
         sa.Column("year", sa.Integer(), nullable=True),
         sa.Column("author_id", sa.Integer(), nullable=True),
-        sa.ForeignKeyConstraint(
-            ["author_id"],
-            ["author.id"],
-        ),
+        sa.ForeignKeyConstraint(["author_id"], ["author.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id"),
-        sa.UniqueConstraint("name", "year", "author_id", name="_books_uc"),
+        sa.UniqueConstraint(
+            "name",
+            "year",
+            "author_id",
+            deferrable="True",
+            initially="DEFERRED",
+            name="_books_uc",
+        ),
     )
     op.create_index("_book_index", "book", ["name", "year", "author_id"], unique=False)
     op.create_index(op.f("ix_book_name"), "book", ["name"], unique=False)

@@ -4,19 +4,22 @@ from contextlib import contextmanager
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 
-config = configparser.ConfigParser()
-config.read("config.ini")
 
-DB_NAME = config["database"].get("DATABASE_NAME", "library_db")
-DB_USER = config["database"].get("DATABASE_USER", "librarian")
-DB_PASSWORD = config["database"].get("DATABASE_PASSWORD", "librarian_password")
-DB_PORT = config["database"].get("DATABASE_PORT", "5432")
-DB_HOST = config["database"].get("DATABASE_HOST", "127.0.0.1")
-DB_TYPE = config["database"].get("DATABASE_TYPE", "postgresql")
+def get_url_to_db():
+    config = configparser.ConfigParser()
+    config.read("config.ini")
+    if "database" in config:
+        db_name = config["database"].get("DB_NAME", "library_db")
+        db_user = config["database"].get("DB_USER", "librarian")
+        db_password = config["database"].get("DB_PASSWORD", "librarian_password")
+        db_port = config["database"].get("DB_PORT", "5432")
+        db_host = config["database"].get("DB_HOST", "127.0.0.1")
+        db_type = config["database"].get("DB_TYPE", "postgresql")
+        return f"{db_type}://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
+    return "postgresql://librarian:librarian_password@127.0.0.1:5432/library_db"
 
-URL = f"{DB_TYPE}://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 
-engine = create_engine(URL, echo=True)
+engine = create_engine(get_url_to_db(), echo=True)
 Base = declarative_base()
 
 Session = sessionmaker(bind=engine)
