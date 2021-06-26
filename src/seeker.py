@@ -1,10 +1,10 @@
-import argparse
 import sys
+from argparse import ArgumentParser
 
 
 def parse_args(_args):
     """Create parser with args (-a, -n, -y -s) and parse args with the created parser"""
-    parser = argparse.ArgumentParser(description="Find books in db")
+    parser = ArgumentParser(description="Find books in db")
     parser.add_argument(
         "-n", type=str, dest="book_name", required=True, help="Book name"
     )

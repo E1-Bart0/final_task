@@ -13,11 +13,11 @@ def find_book(name: str, author: Optional[str], year: Optional[int]) -> Optional
         return book
 
 
-def create_new_books(data: Sequence[Sequence[Union[str, int, None]]]) -> Sequence[Book]:
+def create_new_books(data: Sequence[Sequence[Union[str, int, None]]], update: bool) -> Sequence[Book]:
     """Create a new book in a database"""
     with session_scope() as session:
         objects = [Book(name=name, year=year) for name, author, year in data]
-        return session.bulk_save_objects(objects)
+        # return session.bulk_save_objects(objects)
 
 
 def create_author(author: str) -> Author:

@@ -1,24 +1,26 @@
-import argparse
+from argparse import ArgumentParser, ArgumentTypeError
 import os
 import sys
 from pathlib import Path
+from typing import Union, Sequence
+from src.services.parse_book_from_file import find_books, FILE_EXTENSIONS
 
-FILE_EXTENSIONS = ["", ".fb2", ".gz", ".zip"]
+from src.db.services import create_new_books
 
 
-def parse_args(_args):
+def parse_args(_args: Sequence[str]) -> ArgumentParser.__class__:
     """Create parser with args (-s, -a, -u) and parse args with the created parser"""
-    parser = argparse.ArgumentParser(description="Save books in db")
+    parser = ArgumentParser(description="Save books in db")
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument(
         "-s",
-        type=dir_path,
+        type=validate_dir_path,
         dest="dir_path",
         help="path to the folder with the catalog of books in the fb2, or fb2.zip, or fb2.gz format ",
     )
     group.add_argument(
         "-a",
-        type=file_path,
+        type=validate_file_path,
         dest="book_path",
         help="path to one book in fb2, or fb2.zip, or fb2.gz format",
     )
@@ -33,26 +35,29 @@ def parse_args(_args):
     return parser.parse_args(_args)
 
 
-def dir_path(path):
+def validate_dir_path(path: Union[str, Path]) -> Path:
     """Validate if path to directory exists"""
     if os.path.isdir(path):
         return path
     else:
-        raise argparse.ArgumentTypeError(f"`{path}` is not a valid path for directory")
+        raise ArgumentTypeError(f"`{path}` is not a valid path for directory")
 
 
-def file_path(path):
+def validate_file_path(path: Union[str, Path]) -> Path:
+    """Validate if path to file exists and file with correct extension"""
     if os.path.isfile(path):
         file_extension = Path(path).suffix
         if file_extension in FILE_EXTENSIONS:
             return path
-        raise argparse.ArgumentTypeError(f"`{path}` is not a valid file extension")
+        raise ArgumentTypeError(f"`{path}` is not a valid file extension")
     else:
-        raise argparse.ArgumentTypeError(f"`{path}` is not a valid path to file")
+        raise ArgumentTypeError(f"`{path}` is not a valid path to file")
 
 
 def main():
     args = parse_args(sys.argv[1:])
+    books = find_books(args.dir_path, args.book_path)
+    create_new_books(books, args.flag)
 
 
 if __name__ == "__main__":
