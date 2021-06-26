@@ -30,7 +30,7 @@ def connection():
 
 
 @pytest.fixture(scope="session")
-def setup_database(connection):
+def _setup_database(connection):
     models.Base.metadata.bind = connection
     models.Base.metadata.create_all()
     yield
@@ -38,7 +38,7 @@ def setup_database(connection):
 
 
 @pytest.fixture()
-def db_session(setup_database, connection):
+def db_session(_setup_database, connection):
     transaction = connection.begin()
     yield scoped_session(
         sessionmaker(autocommit=False, autoflush=False, bind=connection)
