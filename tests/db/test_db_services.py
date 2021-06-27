@@ -7,6 +7,7 @@ from sqlalchemy.exc import IntegrityError
 
 from src.db.models import Author, Book
 from src.db.services import (
+    create_books_and_authors,
     delete_book_or_all_db,
     find_author_by_name,
     find_books,
@@ -53,7 +54,7 @@ def test_get_or_create__get_already_exists_instance(db_session):
     db_session.commit()
     assert len(db_session.query(Book).all()) == 1
     result = get_or_create(db_session, Book, **data)
-    assert result == book
+    assert result == (book, True)
     assert len(db_session.query(Book).all()) == 1
 
 
@@ -274,3 +275,92 @@ def test_get_books_from_db_without_author_without_primary_key(
     result = get_books_from_db(db_session, "Test", None, None, 1, False)
     find_book_and_author.assert_called_once_with(db_session, "Test", None, None, 1)
     assert list(result) == [{"name": "Test", "year": 1, "author": None}]
+
+
+def test_create_books_and_authors(db_session):
+    data = [
+        {
+            "name": "Test",
+            "year": 1,
+            "author_first_name": "John",
+            "author_last_name": "Doe",
+        },
+        {
+            "name": "Test1",
+            "year": 2,
+            "author_first_name": "Jaine",
+            "author_last_name": "Doe",
+        },
+    ]
+    create_books_and_authors(db_session, data, False)
+    books = db_session.query(Book).all()
+    assert [b.as_dict for b in books] == [
+        {"name": "Test", "year": 1, "author": 1},
+        {"name": "Test1", "year": 2, "author": 2},
+    ]
+
+
+def test_create_books_and_authors__but_author_is_none(db_session):
+    data = [
+        {
+            "name": "Test",
+            "year": 1,
+            "author_first_name": None,
+            "author_last_name": None,
+        },
+        {
+            "name": "Test1",
+            "year": 2,
+            "author_first_name": "Jaine",
+            "author_last_name": "Doe",
+        },
+    ]
+    create_books_and_authors(db_session, data, False)
+    books = db_session.query(Book).all()
+    assert [b.as_dict for b in books] == [
+        {"name": "Test", "year": 1, "author": None},
+        {"name": "Test1", "year": 2, "author": 1},
+    ]
+
+
+def test_create_books_and_authors_but_author_already_exists(db_session):
+    data = [
+        {
+            "name": "Test",
+            "year": 1,
+            "author_first_name": "Jaine",
+            "author_last_name": "Doe",
+        },
+        {
+            "name": "Test1",
+            "year": 2,
+            "author_first_name": "Jaine",
+            "author_last_name": "Doe",
+        },
+    ]
+    create_books_and_authors(db_session, data, False)
+    books = db_session.query(Book).all()
+    assert [b.as_dict for b in books] == [
+        {"name": "Test", "year": 1, "author": 1},
+        {"name": "Test1", "year": 2, "author": 1},
+    ]
+
+
+def test_create_books_and_authors_but_book_already_exists(db_session):
+    data = [
+        {
+            "name": "Test",
+            "year": 1,
+            "author_first_name": "Jaine",
+            "author_last_name": "Doe",
+        },
+        {
+            "name": "Test",
+            "year": 1,
+            "author_first_name": "Jaine",
+            "author_last_name": "Doe",
+        },
+    ]
+    create_books_and_authors(db_session, data, False)
+    books = db_session.query(Book).all()
+    assert [b.as_dict for b in books] == [{"name": "Test", "year": 1, "author": 1}]

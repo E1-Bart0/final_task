@@ -28,11 +28,11 @@ def get_or_create(session: Session, model: Base, **kwargs):
     """Find instance with such kwarg in db or Create if not exists"""
     instance = session.query(model).filter_by(**kwargs).first()
     if instance:
-        return instance
+        return instance, True
     instance = model(**kwargs)
     session.add(instance)
     session.commit()
-    return instance
+    return instance, False
 
 
 def find_author_by_name(session: Session, first_name: str, last_name: str):
@@ -82,5 +82,33 @@ def get_books_from_db(
     return ({**book.as_dict, "author": author.as_dict} for book in books)
 
 
-def create_books_and_authors(session: Session, data: Sequence[dict], flag: bool):
-    pass
+def create_books_and_authors(session: Session, data: Sequence[dict], update_flag: bool):
+    authors = create_all_authors(session, data)
+    create_all_books(session, data, authors, update_flag)
+
+
+def create_all_authors(session: Session, data):
+    return [
+        get_or_create(
+            session,
+            Author,
+            first_name=d["author_first_name"],
+            last_name=d["author_last_name"],
+        )[0]
+        if d["author_first_name"] is not None
+        else None
+        for d in data
+    ]
+
+
+def create_all_books(session: Session, data, authors, update_flag):
+    for book, author in zip(data, authors):
+        book, get_from_db = get_or_create(
+            session,
+            Book,
+            name=book["name"],
+            year=book["year"],
+            author_id=author.id if author is not None else None,
+        )
+        if get_from_db and update_flag:
+            book.update()
