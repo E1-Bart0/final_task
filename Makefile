@@ -16,9 +16,8 @@ makemigrations:
 
 
 init_db:
-	docker-compose up --build db
 	make install_requirements
-	make migrate
+	docker-compose up --build db
 
 init_test_db:
 	docker-compose up --build test_db
