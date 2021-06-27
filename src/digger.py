@@ -1,11 +1,12 @@
-from argparse import ArgumentParser, ArgumentTypeError
 import os
 import sys
+from argparse import ArgumentParser, ArgumentTypeError
 from pathlib import Path
-from typing import Union, Sequence
-from src.services.parse_book_from_file import find_books, FILE_EXTENSIONS
+from typing import Sequence, Union
 
-from src.db.services import create_new_books
+from src.db.core import session_scope
+from src.db.services import create_books_and_authors
+from src.services.parse_book_from_file import FILE_EXTENSIONS, find_books
 
 
 def parse_args(_args: Sequence[str]) -> ArgumentParser.__class__:
@@ -57,7 +58,8 @@ def validate_file_path(path: Union[str, Path]) -> Path:
 def main():
     args = parse_args(sys.argv[1:])
     books = find_books(args.dir_path, args.book_path)
-    create_new_books(books, args.flag)
+    with session_scope() as session:
+        create_books_and_authors(session, books, args.flag)
 
 
 if __name__ == "__main__":

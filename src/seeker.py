@@ -1,6 +1,9 @@
 import sys
 from argparse import ArgumentParser
 
+from src.db.core import session_scope
+from src.db.services import find_books_and_authors
+
 
 def parse_args(_args):
     """Create parser with args (-a, -n, -y -s) and parse args with the created parser"""
@@ -31,6 +34,8 @@ def parse_args(_args):
 
 def main():
     args = parse_args(sys.argv[1:])
+    with session_scope() as session:
+        find_books_and_authors(session, args.book_name, args.author, args.year)
 
 
 if __name__ == "__main__":

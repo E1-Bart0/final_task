@@ -34,10 +34,12 @@ def test_fb2_parser__works_with_file(get_file_path):
 </FictionBook>"""
     file = get_file_path(text)
     book = FB2Parser(filename=file)
-    assert book.name == "Test Book"
-    assert book.author_full_name == "John Doe"
-    assert book.published_year == 2021
-    assert book.as_dict == {"name": "Test Book", "author": "John Doe", "year": 2021}
+    assert book.as_dict == {
+        "name": "Test Book",
+        "author_first_name": "John",
+        "author_last_name": "Doe",
+        "year": 2021,
+    }
 
 
 def test_fb2_parser__if_not_author__book_as_file(get_file_path):
@@ -55,10 +57,12 @@ def test_fb2_parser__if_not_author__book_as_file(get_file_path):
 </FictionBook>"""
     file = get_file_path(text)
     book = FB2Parser(filename=file)
-    assert book.name == "Test Book"
-    assert book.author_full_name is None
-    assert book.published_year == 2021
-    assert book.as_dict == {"name": "Test Book", "author": None, "year": 2021}
+    assert book.as_dict == {
+        "name": "Test Book",
+        "author_first_name": None,
+        "author_last_name": None,
+        "year": 2021,
+    }
 
 
 def test_fb2_parser__if_not_published_year_and_author__book_as_file(get_file_path):
@@ -72,10 +76,12 @@ def test_fb2_parser__if_not_published_year_and_author__book_as_file(get_file_pat
 </FictionBook>"""
     file = get_file_path(text)
     book = FB2Parser(filename=file)
-    assert book.name == "Test Book"
-    assert book.author_full_name is None
-    assert book.published_year is None
-    assert book.as_dict == {"name": "Test Book", "author": None, "year": None}
+    assert book.as_dict == {
+        "name": "Test Book",
+        "author_first_name": None,
+        "author_last_name": None,
+        "year": None,
+    }
 
 
 def test_fb2_parser__if_not_book_name__book_as_file(get_file_path):
@@ -103,7 +109,9 @@ def test_fb2_parser__works_with_text(get_file_path):
     </description>
 </FictionBook>"""
     book = FB2Parser(text=text)
-    assert book.name == "Test Book"
-    assert book.author_full_name == "John Doe"
-    assert book.published_year == 2021
-    assert book.as_dict == {"name": "Test Book", "author": "John Doe", "year": 2021}
+    assert book.as_dict == {
+        "name": "Test Book",
+        "author_first_name": "John",
+        "author_last_name": "Doe",
+        "year": 2021,
+    }

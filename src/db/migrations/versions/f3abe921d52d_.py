@@ -1,16 +1,15 @@
 """empty message
 
-Revision ID: 399e958d44a2
+Revision ID: f3abe921d52d
 Revises:
-Create Date: 2021-06-25 20:10:11.706751
+Create Date: 2021-06-26 20:23:15.440251
 
 """
-from alembic import op
 import sqlalchemy as sa
-
+from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "399e958d44a2"
+revision = "f3abe921d52d"
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -21,10 +20,14 @@ def upgrade():
     op.create_table(
         "author",
         sa.Column("id", sa.Integer(), nullable=False),
-        sa.Column("full_name", sa.String(length=60), nullable=False),
+        sa.Column("first_name", sa.String(length=40), nullable=True),
+        sa.Column("last_name", sa.String(length=40), nullable=True),
         sa.PrimaryKeyConstraint("id"),
+        sa.UniqueConstraint("first_name", "last_name"),
     )
-    op.create_index(op.f("ix_author_full_name"), "author", ["full_name"], unique=True)
+    op.create_index(
+        "_author_index", "author", ["first_name", "last_name"], unique=False
+    )
     op.create_table(
         "book",
         sa.Column("id", sa.Integer(), nullable=False),
@@ -33,14 +36,7 @@ def upgrade():
         sa.Column("author_id", sa.Integer(), nullable=True),
         sa.ForeignKeyConstraint(["author_id"], ["author.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id"),
-        sa.UniqueConstraint(
-            "name",
-            "year",
-            "author_id",
-            deferrable="True",
-            initially="DEFERRED",
-            name="_books_uc",
-        ),
+        sa.UniqueConstraint("name", "year", "author_id"),
     )
     op.create_index("_book_index", "book", ["name", "year", "author_id"], unique=False)
     op.create_index(op.f("ix_book_name"), "book", ["name"], unique=False)
@@ -54,6 +50,6 @@ def downgrade():
     op.drop_index(op.f("ix_book_name"), table_name="book")
     op.drop_index("_book_index", table_name="book")
     op.drop_table("book")
-    op.drop_index(op.f("ix_author_full_name"), table_name="author")
+    op.drop_index("_author_index", table_name="author")
     op.drop_table("author")
     # ### end Alembic commands ###

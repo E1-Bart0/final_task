@@ -1,5 +1,8 @@
-from argparse import ArgumentParser
 import sys
+from argparse import ArgumentParser
+
+from src.db.core import session_scope
+from src.db.services import delete_book_or_all_db
 
 
 def parse_args(_args):
@@ -15,6 +18,9 @@ def parse_args(_args):
 
 def main():
     args = parse_args(sys.argv[1:])
+    with session_scope() as session:
+        row_deleted = delete_book_or_all_db(session, args.number, args.all)
+        sys.stdout.write(f"Deleted rows: {row_deleted}")
 
 
 if __name__ == "__main__":

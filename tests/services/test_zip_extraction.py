@@ -1,5 +1,5 @@
-from tempfile import TemporaryDirectory, NamedTemporaryFile
-from zipfile import ZipFile, ZIP_DEFLATED
+from tempfile import NamedTemporaryFile, TemporaryDirectory
+from zipfile import ZIP_DEFLATED, ZipFile
 
 import pytest
 

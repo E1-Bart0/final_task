@@ -1,7 +1,7 @@
 import gzip
 import os
 from pathlib import Path
-from typing import Union, Generator
+from typing import Generator, Union
 from zipfile import ZipFile
 
 

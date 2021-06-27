@@ -1,4 +1,5 @@
-from sqlalchemy import Column, ForeignKey, Integer, String, UniqueConstraint, Index
+from sqlalchemy import Column, ForeignKey, Index, Integer, String, UniqueConstraint
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship
 
 from src.db.core.connect_to_db import Base
@@ -7,8 +8,26 @@ from src.db.core.connect_to_db import Base
 class Author(Base):
     __tablename__ = "author"
     id = Column(Integer, primary_key=True)
-    full_name = Column(String(60), index=True, unique=True, nullable=False)
+    first_name = Column(String(40))
+    last_name = Column(String(40))
     book = relationship("Book", backref="book", passive_deletes=True)
+
+    # unique constraints across multiple columns and Indexing by name, year, author
+    __table_args__ = (
+        UniqueConstraint(
+            "first_name",
+            "last_name",
+        ),
+        Index("_author_index", "first_name", "last_name"),
+    )
+
+    def __init__(self, first_name, last_name):
+        self.first_name = first_name
+        self.last_name = last_name
+
+    @hybrid_property
+    def full_name(self):
+        return f"{self.first_name} {self.last_name}"
 
 
 class Book(Base):
@@ -17,7 +36,10 @@ class Book(Base):
     name = Column(String(50), nullable=False, index=True)
     year = Column(Integer, nullable=True, index=True)
     author_id = Column(
-        Integer, ForeignKey("author.id", ondelete="CASCADE"), nullable=True
+        Integer,
+        ForeignKey("author.id", ondelete="CASCADE"),
+        nullable=True,
+        default=None,
     )
 
     # unique constraints across multiple columns and Indexing by name, year, author
@@ -26,9 +48,6 @@ class Book(Base):
             "name",
             "year",
             "author_id",
-            name="_books_uc",
-            deferrable=True,
-            initially="DEFERRED",
         ),
         Index("_book_index", "name", "year", "author_id"),
     )

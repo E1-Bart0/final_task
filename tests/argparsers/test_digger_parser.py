@@ -1,10 +1,10 @@
 import argparse
-from tempfile import gettempdir, NamedTemporaryFile
+from tempfile import NamedTemporaryFile, gettempdir
 from unittest.mock import patch
 
 import pytest
 
-from src.digger import validate_dir_path, validate_file_path, parse_args
+from src.digger import parse_args, validate_dir_path, validate_file_path
 
 
 def test_dir_path__if_dir_do_not_exists():

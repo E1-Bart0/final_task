@@ -22,15 +22,16 @@ class FB2Parser:
         return self.root.find("./description/title-info/book-title").text
 
     @property
-    def author_full_name(self) -> Optional[str]:
+    def author_first_name(self) -> Optional[str]:
         """Parse book and extract author name"""
-        element_first_name = self.root.find(
-            "./description/title-info/author/first-name"
-        )
+        element_name = self.root.find("./description/title-info/author/first-name")
+        return element_name.text if element_name is not None else None
+
+    @property
+    def author_last_name(self) -> Optional[str]:
+        """Parse book and extract author name"""
         element_last_name = self.root.find("./description/title-info/author/last-name")
-        if element_first_name is None or element_last_name is None:
-            return None
-        return f"{element_first_name.text} {element_last_name.text}"
+        return element_last_name.text if element_last_name is not None else None
 
     @property
     def published_year(self) -> Optional[int]:
@@ -42,7 +43,8 @@ class FB2Parser:
     def as_dict(self):
         return {
             "name": self.name,
-            "author": self.author_full_name,
+            "author_first_name": self.author_first_name,
+            "author_last_name": self.author_last_name,
             "year": self.published_year,
         }
 

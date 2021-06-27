@@ -1,9 +1,9 @@
-from unittest.mock import patch, call
+from unittest.mock import call, patch
 
 from src.services.parse_book_from_file import (
     find_books,
-    get_books_from_file,
     get_books_from_directory,
+    get_books_from_file,
 )
 
 
