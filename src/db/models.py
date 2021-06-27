@@ -8,8 +8,8 @@ from src.db.core.connect_to_db import Base
 class Author(Base):
     __tablename__ = "author"
     id = Column(Integer, primary_key=True)
-    first_name = Column(String(40))
-    last_name = Column(String(40))
+    first_name = Column(String(40), nullable=False)
+    last_name = Column(String(40), nullable=False)
     book = relationship("Book", backref="book", passive_deletes=True)
 
     # unique constraints across multiple columns and Indexing by name, year, author
@@ -28,6 +28,13 @@ class Author(Base):
     @hybrid_property
     def full_name(self):
         return f"{self.first_name} {self.last_name}"
+
+    @hybrid_property
+    def as_dict(self):
+        return {
+            "first_name": self.first_name,
+            "last_name": self.last_name,
+        }
 
 
 class Book(Base):
@@ -51,3 +58,12 @@ class Book(Base):
         ),
         Index("_book_index", "name", "year", "author_id"),
     )
+
+    def __init__(self, name, year, author_id):
+        self.name = name
+        self.year = year
+        self.author_id = author_id
+
+    @hybrid_property
+    def as_dict(self):
+        return {"name": self.name, "year": self.year, "author": self.author_id}
