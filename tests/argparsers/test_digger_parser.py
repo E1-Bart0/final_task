@@ -23,7 +23,7 @@ def test_dir_path__if_path_leads_to_file():
         validate_dir_path(path_to_file)
 
 
-def test_dir_path__return_path():
+def test_dir_path__returns_path():
     path_to_directory = gettempdir()
     assert validate_dir_path(path_to_directory) == path_to_directory
 
@@ -80,7 +80,7 @@ def test_parse_args__s__without_path(mock_dir_path):
 
 
 @patch("src.digger.validate_dir_path", side_effect=lambda x: x)
-def test_parse_args__s__and__u(mock_dir_path):
+def test_parse_args__s__and__u__args(mock_dir_path):
     args = parse_args(["-s", "/path/to/dir/", "-u"])
     assert args.dir_path == "/path/to/dir/"
     assert args.book_path is None
@@ -88,7 +88,7 @@ def test_parse_args__s__and__u(mock_dir_path):
 
 
 @patch("src.digger.validate_dir_path", side_effect=lambda x: x)
-def test_parse_args__s(mock_dir_path):
+def test_parse_args__s__arg(mock_dir_path):
     args = parse_args(["-s", "/path/to/dir/"])
     assert args.dir_path == "/path/to/dir/"
     assert args.book_path is None
@@ -96,7 +96,7 @@ def test_parse_args__s(mock_dir_path):
 
 
 @patch("src.digger.validate_file_path", side_effect=lambda x: x)
-def test_parse_args__a__and__u(mock_file_path):
+def test_parse_args__a__and__u__args(mock_file_path):
     args = parse_args(["-a", "/path/to/file", "-u"])
     assert args.dir_path is None
     assert args.book_path == "/path/to/file"
@@ -104,7 +104,7 @@ def test_parse_args__a__and__u(mock_file_path):
 
 
 @patch("src.digger.validate_file_path", side_effect=lambda x: x)
-def test_parse_args__a(mock_file_path):
+def test_parse_args__a__args(mock_file_path):
     args = parse_args(["-a", "/path/to/file"])
     assert args.dir_path is None
     assert args.book_path == "/path/to/file"

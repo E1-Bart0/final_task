@@ -6,9 +6,11 @@ import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 
-from src.db import models
+sys.path.append(
+    os.path.join(os.path.normpath(os.path.dirname(os.path.dirname(__file__))), "src")
+)
 
-sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+from db import models  # noqa: E402
 
 
 @pytest.fixture(scope="session")

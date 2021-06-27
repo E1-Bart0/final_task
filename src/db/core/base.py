@@ -1,2 +1,2 @@
-from src.db.core import Base
-from src.db.models import Author, Book
+from db.core import Base
+from db.models import Author, Book

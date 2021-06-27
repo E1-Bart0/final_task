@@ -1,3 +1,4 @@
+import logging
 from pathlib import Path
 from typing import Optional, Union
 
@@ -10,9 +11,12 @@ class FB2Parser:
     def __init__(
         self, filename: Optional[Union[str, Path]] = None, text: Optional[str] = None
     ):
+
         if text is None:
+            logging.debug(f"Parsing file: {filename}")
             self.root = ElementTree.parse(filename).getroot()
         else:
+            logging.debug("Parsing text")
             self.root = ElementTree.fromstring(text)
         self.cleanup()
 

@@ -22,7 +22,7 @@ def test_find_books__dir_path(mock):
     "src.services.parse_book_from_file.get_books_from_file",
     return_value=[{"name": "Book1"}],
 )
-def test_find_books__book_path(mock):
+def test_find_books__by_book_path(mock):
     book_path = "/path/to/file"
     result = find_books(book_path=book_path)
     mock.assert_called_once_with(book_path)
@@ -65,7 +65,7 @@ def test_get_books_from_file__with_extension_zip(mock_zip, mock_parser):
     "src.services.parse_book_from_file.zip_extraction",
     return_value=["file_content1", "file_content2"],
 )
-def test_get_books_from_file__with_extension_zip_returns_2_file_in_zip(
+def test_get_books_from_file__with_extension_zip__returns_2_file_in_zip(
     mock_zip, mock_parser
 ):
     mock_parser.return_value.as_dict = {"name": "Book1"}

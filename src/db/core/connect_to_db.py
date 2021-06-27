@@ -1,8 +1,15 @@
 import configparser
+import logging
+import os
 from contextlib import contextmanager
 
+import dotenv
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
+
+dotenv.load_dotenv()
+logging_level = os.getenv("LOGGING_LEVEL")
+logging.basicConfig(format="[%(message)s]", level=logging_level)
 
 
 def get_url_to_db():
@@ -19,7 +26,7 @@ def get_url_to_db():
     return "postgresql://librarian:librarian_password@127.0.0.1:5432/library_db"
 
 
-engine = create_engine(get_url_to_db(), echo=True)
+engine = create_engine(get_url_to_db())
 Base = declarative_base()
 
 Session = sessionmaker(bind=engine)

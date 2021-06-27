@@ -2,7 +2,7 @@ from tempfile import NamedTemporaryFile, TemporaryDirectory
 
 import pytest
 
-from src.services.file_extraction import get_files_from_dir
+from services.file_extraction import get_files_from_dir
 
 
 @pytest.fixture()

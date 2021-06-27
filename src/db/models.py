@@ -1,8 +1,10 @@
+from typing import Optional
+
 from sqlalchemy import Column, ForeignKey, Index, Integer, String, UniqueConstraint
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship
 
-from src.db.core.connect_to_db import Base
+from .core.connect_to_db import Base
 
 
 class Author(Base):
@@ -21,16 +23,12 @@ class Author(Base):
         Index("_author_index", "first_name", "last_name"),
     )
 
-    def __init__(self, first_name, last_name):
+    def __init__(self, first_name: str, last_name: str):
         self.first_name = first_name
         self.last_name = last_name
 
     @hybrid_property
-    def full_name(self):
-        return f"{self.first_name} {self.last_name}"
-
-    @hybrid_property
-    def as_dict(self):
+    def as_dict(self) -> dict:
         return {
             "first_name": self.first_name,
             "last_name": self.last_name,
@@ -59,11 +57,11 @@ class Book(Base):
         Index("_book_index", "name", "year", "author_id"),
     )
 
-    def __init__(self, name, year, author_id):
+    def __init__(self, name: str, year: Optional[int], author_id: Optional[int]):
         self.name = name
         self.year = year
         self.author_id = author_id
 
     @hybrid_property
-    def as_dict(self):
+    def as_dict(self) -> dict:
         return {"name": self.name, "year": self.year, "author": self.author_id}

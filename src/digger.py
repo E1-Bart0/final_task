@@ -1,12 +1,13 @@
+import logging
 import os
 import sys
 from argparse import ArgumentParser, ArgumentTypeError
 from pathlib import Path
 from typing import Sequence, Union
 
-from src.db.core import session_scope
-from src.db.services import create_books_and_authors
-from src.services.parse_book_from_file import FILE_EXTENSIONS, find_books
+from db.core import session_scope
+from db.services import create_books_and_authors
+from services.parse_book_from_file import FILE_EXTENSIONS, find_books
 
 
 def parse_args(_args: Sequence[str]) -> ArgumentParser.__class__:
@@ -56,10 +57,17 @@ def validate_file_path(path: Union[str, Path]) -> Path:
 
 
 def main():
+    logging.debug(f"Called {sys.argv[0]} with {sys.argv[1:]}")
+
     args = parse_args(sys.argv[1:])
     books = find_books(args.dir_path, args.book_path)
+    if books is None:
+        logging.info("Book not Found")
+        return
+    logging.debug(f"Saving {len(books)} books")
     with session_scope() as session:
         create_books_and_authors(session, books, args.flag)
+    logging.info(f"Saved {len(books)} books")
 
 
 if __name__ == "__main__":

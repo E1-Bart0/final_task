@@ -3,7 +3,7 @@ from tempfile import TemporaryDirectory
 
 import pytest
 
-from src.services.file_extraction import gzip_extraction
+from services.file_extraction import gzip_extraction
 
 
 @pytest.fixture()

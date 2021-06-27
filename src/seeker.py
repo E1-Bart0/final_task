@@ -1,8 +1,9 @@
+import logging
 import sys
 from argparse import ArgumentParser
 
-from .db.core import session_scope
-from .db.services import get_books_from_db
+from db.core import session_scope
+from db.services import get_books_from_db
 
 
 def parse_args(_args):
@@ -38,6 +39,8 @@ def parse_args(_args):
 
 
 def main():
+    logging.debug(f"Called {sys.argv[0]} with {sys.argv[1:]}")
+
     args = parse_args(sys.argv[1:])
 
     book_name = " ".join(args.book_name)
@@ -54,8 +57,10 @@ def main():
             args.year,
             args.primary_key_flag,
         )
+        if not books:
+            logging.info("Book Not Found")
         for book in books:
-            sys.stdout.write(book)
+            logging.info(f"Book: {book}")
 
 
 if __name__ == "__main__":

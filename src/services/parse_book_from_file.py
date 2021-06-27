@@ -1,12 +1,11 @@
+import logging
 from pathlib import Path
 from typing import Optional, Sequence, Union
 
-from src.services.fb2_parser import FB2Parser
-from src.services.file_extraction import (
-    get_files_from_dir,
-    gzip_extraction,
-    zip_extraction,
-)
+from defusedxml.ElementTree import ParseError
+
+from services.fb2_parser import FB2Parser
+from services.file_extraction import get_files_from_dir, gzip_extraction, zip_extraction
 
 FILE_EXTENSIONS = ["", ".fb2", ".gz", ".zip"]
 
@@ -33,15 +32,20 @@ def get_books_from_file(file: Optional[Union[str, Path]]) -> Sequence[dict]:
 
     :return [{'name': str, 'author_first_name': str,'author_last_name': str, 'year': int}, ...]
     """
+    logging.debug(f"Working with file: {file}")
+
     extension = Path(file).suffix
-    if extension == ".gz":
-        return [FB2Parser(text=gzip_extraction(file)).as_dict]
-    elif extension == ".zip":
-        return [
-            FB2Parser(text=file_content).as_dict
-            for file_content in zip_extraction(file)
-        ]
-    return [FB2Parser(filename=file).as_dict]
+    try:
+        if extension == ".gz":
+            return [FB2Parser(text=gzip_extraction(file)).as_dict]
+        elif extension == ".zip":
+            return [
+                FB2Parser(text=file_content).as_dict
+                for file_content in zip_extraction(file)
+            ]
+        return [FB2Parser(filename=file).as_dict]
+    except ParseError as err:
+        logging.warning(err, exc_info=True)
 
 
 def get_books_from_directory(dir_path: Optional[Union[str, Path]]) -> Sequence[dict]:

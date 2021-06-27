@@ -2,7 +2,7 @@ from tempfile import NamedTemporaryFile
 
 import pytest
 
-from src.services.fb2_parser import FB2Parser
+from services.fb2_parser import FB2Parser
 
 
 @pytest.fixture()
@@ -42,7 +42,7 @@ def test_fb2_parser__works_with_file(get_file_path):
     }
 
 
-def test_fb2_parser__if_not_author__book_as_file(get_file_path):
+def test_fb2_parser__as_file__if_not_author__book(get_file_path):
     text = """<?xml version="1.0" encoding="UTF-8"?>
 <FictionBook xmlns="URL">
     <description>
@@ -65,7 +65,7 @@ def test_fb2_parser__if_not_author__book_as_file(get_file_path):
     }
 
 
-def test_fb2_parser__if_not_published_year_and_author__book_as_file(get_file_path):
+def test_fb2_parser__as_file__if_not_year_and_not_author(get_file_path):
     text = """<?xml version="1.0" encoding="UTF-8"?>
 <FictionBook xmlns="URL">
     <description>
@@ -84,7 +84,7 @@ def test_fb2_parser__if_not_published_year_and_author__book_as_file(get_file_pat
     }
 
 
-def test_fb2_parser__if_not_book_name__book_as_file(get_file_path):
+def test_fb2_parser__as_file__if_not_book_name(get_file_path):
     text = """<?xml version="1.0" encoding="UTF-8"?>
 <FictionBook xmlns="URL">
 </FictionBook>"""
