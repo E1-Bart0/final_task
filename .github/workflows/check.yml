@@ -44,8 +44,8 @@ jobs:
         python-version: 3.9
     - name: install dependencies
       run: |
-        pip install -r ./requirements/common.txt
-        pip install -r ./requirements/linters.txt
+        pip install -r ./.requirements/common.txt
+        pip install -r ./.requirements/linters.txt
     - name: Black check
       run: |
         black . --check
