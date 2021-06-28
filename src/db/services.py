@@ -59,8 +59,8 @@ def find_author_by_name(
 
 def find_books(session: Session, **kwargs) -> Sequence[Book]:
     """Find Book instance in DB"""
-
-    return session.query(Book).filter_by(**kwargs).all()
+    data_without_none = {k: v for k, v in kwargs.items() if v is not None}
+    return session.query(Book).filter_by(**data_without_none).all()
 
 
 def find_books_and_authors(
