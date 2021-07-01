@@ -67,7 +67,11 @@ class Book(Base):
 
     @hybrid_property
     def as_dict(self) -> dict:
-        return {"name": self.name, "year": self.year, "author": self.author_id}
+        return {
+            "name": self.name,
+            "year": self.year,
+            "author": self.author.as_dict if self.author_id else None,
+        }
 
     def __repr__(self):
         return str(self.as_dict)

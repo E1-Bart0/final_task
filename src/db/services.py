@@ -45,24 +45,6 @@ def get_or_create(session: Session, model: Base, **kwargs) -> (Base, bool):
     return instance, False
 
 
-def find_author_by_name(
-    session: Session, first_name: str, last_name: str
-) -> Optional[Author]:
-    """Find Author instance in DB with such first_name and last_name"""
-
-    return (
-        session.query(Author)
-        .filter_by(first_name=first_name, last_name=last_name)
-        .first()
-    )
-
-
-def find_books(session: Session, **kwargs) -> Sequence[Book]:
-    """Find Book instance in DB"""
-    data_without_none = {k: v for k, v in kwargs.items() if v is not None}
-    return session.query(Book).filter_by(**data_without_none).all()
-
-
 def find_books_and_authors(
     session: Session,
     book_name: str,
@@ -71,16 +53,18 @@ def find_books_and_authors(
     book_year: Optional[int],
 ) -> (Sequence[Book], Optional[Author]):
     """Find Books and Author of books in DB"""
-
-    author, author_id = None, None
-    if author_first_name is not None and author_last_name is not None:
-        author = find_author_by_name(session, author_first_name, author_last_name)
-        author_id = author.id
-        logging.debug(f"Found Author: {author.as_dict}")
-    return (
-        find_books(session, name=book_name, author_id=author_id, year=book_year),
-        author,
-    )
+    query_param = [
+        Book.name == book_name,
+        (Book.year == book_year) if book_year is not None else None,
+        Book.author.has(
+            Author.first_name == author_first_name
+            and Author.last_name == author_last_name
+        )
+        if author_first_name is not None and author_last_name is not None
+        else None,
+    ]
+    query_param = filter(lambda x: x is not None, query_param)
+    return session.query(Book).filter(*query_param).all()
 
 
 def get_books_from_db(
@@ -94,15 +78,12 @@ def get_books_from_db(
     """Find Books in DB and convert it into dict"""
 
     logging.debug("Searching book in db")
-    books, author = find_books_and_authors(
+    books = find_books_and_authors(
         session, book_name, author_first_name, author_last_name, book_year
     )
-
     if primary_key:
         return [book.id for book in books]
-    if author is None:
-        return [book.as_dict for book in books]
-    return [{**book.as_dict, "author": author.as_dict} for book in books]
+    return [book.as_dict for book in books]
 
 
 def create_books_and_authors(session: Session, data: Sequence[dict], update_flag: bool):
