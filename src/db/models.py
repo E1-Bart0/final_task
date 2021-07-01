@@ -12,7 +12,7 @@ class Author(Base):
     id = Column(Integer, primary_key=True)
     first_name = Column(String(40), nullable=False)
     last_name = Column(String(40), nullable=False)
-    book = relationship("Book", backref="book", passive_deletes=True)
+    book = relationship("Book", backref="author", passive_deletes=True)
 
     # unique constraints across multiple columns and Indexing by name, year, author
     __table_args__ = (
@@ -33,6 +33,9 @@ class Author(Base):
             "first_name": self.first_name,
             "last_name": self.last_name,
         }
+
+    def __repr__(self):
+        return str(self.as_dict)
 
 
 class Book(Base):
@@ -65,3 +68,6 @@ class Book(Base):
     @hybrid_property
     def as_dict(self) -> dict:
         return {"name": self.name, "year": self.year, "author": self.author_id}
+
+    def __repr__(self):
+        return str(self.as_dict)

@@ -19,7 +19,7 @@ def get_url_to_db():
         db_name = config["database"].get("DB_NAME", "library_db")
         db_user = config["database"].get("DB_USER", "librarian")
         db_password = config["database"].get("DB_PASSWORD", "librarian_password")
-        db_port = config["database"].get("DB_PORT", "5432")
+        db_port = config["database"].get("DB_PORT", "54321")
         db_host = config["database"].get("DB_HOST", "127.0.0.1")
         db_type = config["database"].get("DB_TYPE", "postgresql")
         return f"{db_type}://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
