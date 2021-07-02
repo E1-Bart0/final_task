@@ -1,49 +1,79 @@
-from datetime import datetime
+from typing import Optional
 
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Text
-from sqlalchemy.orm import relationship
+from sqlalchemy import Column, ForeignKey, Index, Integer, String, UniqueConstraint
+from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.orm import backref, configure_mappers, relationship
 
-from src.db.core.connect_to_db import Base
+from .core.connect_to_db import Base
 
 
-class Human(Base):
-    __abstract__ = True
-    __tablename__ = None
-
+class Author(Base):
+    __tablename__ = "author"
     id = Column(Integer, primary_key=True)
-    first_name = Column(String(30))
-    last_name = Column(String(30))
-
-
-class Student(Human):
-    __tablename__ = "student"
-
-
-class Teacher(Human):
-    __tablename__ = "teacher"
-    homework_done = relationship("HomeworkResult")
-
-
-class Homework(Base):
-    __tablename__ = "homework"
-    id = Column(Integer, primary_key=True)
-    text = Column(Text)
-    created = Column(DateTime, default=datetime.now())
-    deadline = Column(Integer)
-    homework_result = relationship(
-        "HomeworkResult", uselist=False, back_populates="homework"
+    first_name = Column(String(40), nullable=False)
+    last_name = Column(String(40), nullable=False)
+    book = relationship("Book", uselist=False, backref=backref("author"))
+    # unique constraints across multiple columns and Indexing by name, year, author
+    __table_args__ = (
+        UniqueConstraint(
+            "first_name",
+            "last_name",
+        ),
+        Index("_author_index", "first_name", "last_name"),
     )
 
+    def __init__(self, first_name: str, last_name: str):
+        self.first_name = first_name
+        self.last_name = last_name
 
-class HomeworkResult(Base):
-    __tablename__ = "homework_result"
+    @hybrid_property
+    def as_dict(self) -> dict:
+        return {
+            "first_name": self.first_name,
+            "last_name": self.last_name,
+        }
+
+    def __repr__(self):
+        return str(self.as_dict)
+
+
+class Book(Base):
+    __tablename__ = "book"
     id = Column(Integer, primary_key=True)
-    solution = Column(Text)
-    author_id = Column(Integer, ForeignKey("student.id", ondelete="CASCADE"))
-    author = relationship("Student")
-    created = Column(DateTime, default=datetime.now())
-    teacher_id = Column(
-        Integer, ForeignKey("teacher.id", ondelete="CASCADE"), nullable=True
+    name = Column(String(50), nullable=False, index=True)
+    year = Column(Integer, nullable=True, index=True)
+    author_id = Column(
+        Integer,
+        ForeignKey("author.id", ondelete="CASCADE"),
+        nullable=True,
+        default=None,
     )
-    homework_id = Column(Integer, ForeignKey("homework.id"))
-    homework = relationship("Homework", back_populates="homework_result")
+
+    # unique constraints across multiple columns and Indexing by name, year, author
+    __table_args__ = (
+        UniqueConstraint(
+            "name",
+            "year",
+            "author_id",
+        ),
+        Index("_book_index", "name", "year", "author_id"),
+    )
+
+    def __init__(self, name: str, year: Optional[int], author_id: Optional[int]):
+        self.name = name
+        self.year = year
+        self.author_id = author_id
+
+    @hybrid_property
+    def as_dict(self) -> dict:
+        return {
+            "name": self.name,
+            "year": self.year,
+            "author": self.author.as_dict if self.author_id else None,
+        }
+
+    def __repr__(self):
+        return str(self.as_dict)
+
+
+configure_mappers()

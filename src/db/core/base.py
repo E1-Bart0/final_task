@@ -1,1 +1,2 @@
-from src.db.models import Homework, HomeworkResult, Student, Teacher
+from db.core import Base
+from db.models import Author, Book

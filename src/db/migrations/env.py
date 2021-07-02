@@ -1,11 +1,14 @@
 import sys
 from logging.config import fileConfig
+from os.path import abspath, dirname
 
 from alembic import context
 from sqlalchemy import engine_from_config, pool
 
-sys.path = ["", "../.."] + sys.path[1:]
-from src.db.core import URL, Base  # noqa: E402
+sys.path.insert(0, dirname(dirname(dirname(abspath(__file__)))))
+
+from db.core import get_url_to_db
+from db.core.base import Base
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -38,7 +41,7 @@ def run_migrations_offline():
     script output.
 
     """
-    url = config.get_main_option(URL)
+    url = config.get_main_option(get_url_to_db())
     context.configure(
         url=url,
         target_metadata=target_metadata,
@@ -58,7 +61,7 @@ def run_migrations_online():
 
     """
     configuration = config.get_section(config.config_ini_section)
-    configuration["sqlalchemy.url"] = URL
+    configuration["sqlalchemy.url"] = get_url_to_db()
     connectable = engine_from_config(
         configuration,
         prefix="sqlalchemy.",
