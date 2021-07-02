@@ -23,7 +23,7 @@ def get_url_to_db():
         db_host = config["database"].get("DB_HOST", "127.0.0.1")
         db_type = config["database"].get("DB_TYPE", "postgresql")
         return f"{db_type}://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
-    return "postgresql://librarian:librarian_password@127.0.0.1:5432/library_db"
+    return "postgresql://librarian:librarian_password@127.0.0.1:54321/library_db"
 
 
 engine = create_engine(get_url_to_db())

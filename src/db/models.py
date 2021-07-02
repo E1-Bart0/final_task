@@ -2,7 +2,7 @@ from typing import Optional
 
 from sqlalchemy import Column, ForeignKey, Index, Integer, String, UniqueConstraint
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import backref, configure_mappers, relationship
 
 from .core.connect_to_db import Base
 
@@ -12,8 +12,7 @@ class Author(Base):
     id = Column(Integer, primary_key=True)
     first_name = Column(String(40), nullable=False)
     last_name = Column(String(40), nullable=False)
-    book = relationship("Book", backref="author", passive_deletes=True)
-
+    book = relationship("Book", uselist=False, backref=backref("author"))
     # unique constraints across multiple columns and Indexing by name, year, author
     __table_args__ = (
         UniqueConstraint(
@@ -75,3 +74,6 @@ class Book(Base):
 
     def __repr__(self):
         return str(self.as_dict)
+
+
+configure_mappers()

@@ -21,6 +21,9 @@ def test_find_books_and_authors__search_with_author(db_session):
 def test_find_books_and_authors__search_with_author_but_there_not_such_author(
     db_session,
 ):
+    create_book_with_author(
+        db_session, book_name="Book", book_year=1, author_f_n="Jaine", author_l_n="Doe"
+    )
     result = find_books_and_authors(
         db_session,
         book_name="Book",
