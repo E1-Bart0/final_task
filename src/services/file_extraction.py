@@ -27,6 +27,7 @@ def get_files_from_dir(dir_path: Union[str, Path]) -> Generator[str, None, None]
 
     logging.debug(f"Scanning directory for file: {dir_path}")
     for root, _, files in os.walk(dir_path):
+        logging.debug(f"Find {len(files)} in dir:{root}")
         for file in files:
             file_extension = Path(file).suffix
             if file_extension in FILE_EXTENSIONS:

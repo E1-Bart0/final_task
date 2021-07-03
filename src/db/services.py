@@ -117,6 +117,7 @@ def create_all_books(
     update_flag: bool,
 ):
     """Creating Books if they do not exists in DB else update it, if update_flag is True"""
+    cr, up = 0, 0
 
     for book_data, author in zip(data, authors):
         book_kwargs = {
@@ -126,14 +127,16 @@ def create_all_books(
         }
         book, not_created = get_or_create(session, Book, **book_kwargs)
         if not_created:
-            update_if_update_flag(session, book, book_data, update_flag)
+            up += update_if_update_flag(session, book, book_data, update_flag)
         else:
+            cr += 1
             logging.debug(f"Saving info about book: {book.as_dict}")
+    logging.info(f"Created: {cr} books AND Updated: {up} books")
 
 
 def update_if_update_flag(
     session: Session, book: Book, book_data: dict, update_flag: bool
-):
+) -> bool:
     """Update Book if update_flag is True"""
 
     logging.debug(f"Book already exists: {book.as_dict}")
@@ -142,3 +145,5 @@ def update_if_update_flag(
         book.name = book_data["name"]
         book.year = book_data["year"]
         session.commit()
+        return True
+    return False
