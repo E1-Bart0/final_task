@@ -1,5 +1,5 @@
 import logging
-from typing import Optional, Sequence
+from typing import Iterable, Optional, Sequence
 
 from .core import Base, Session
 from .models import Author, Book
@@ -95,47 +95,48 @@ def create_books_and_authors(session: Session, data: Sequence[dict], update_flag
 
 def create_all_authors(
     session: Session, data: Sequence[dict]
-) -> Sequence[Optional[Author]]:
+) -> Iterable[Optional[Author]]:
     """Creating Authors if they do not exists in DB"""
 
-    get_author = (
-        lambda x: get_or_create(
-            session,
-            Author,
-            first_name=x["author_first_name"],
-            last_name=x["author_last_name"],
-        )[0]
-        if x["author_first_name"] is not None
-        else None
-    )
-    return [get_author(d) for d in data]
+    def get_author(book_info):
+        if book_info["author_first_name"] is None:
+            return None
+        kwargs = {
+            "first_name": book_info["author_first_name"],
+            "last_name": book_info["author_last_name"],
+        }
+        return get_or_create(session, Author, **kwargs)[0]
+
+    return map(get_author, data)
 
 
 def create_all_books(
     session: Session,
     data: Sequence[dict],
-    authors: Sequence[Optional[Author]],
+    authors: Iterable[Optional[Author]],
     update_flag: bool,
 ):
     """Creating Books if they do not exists in DB else update it, if update_flag is True"""
+    cr, up = 0, 0
 
     for book_data, author in zip(data, authors):
-        book, not_created = get_or_create(
-            session,
-            Book,
-            name=book_data["name"],
-            year=book_data["year"],
-            author_id=author.id if author is not None else None,
-        )
+        book_kwargs = {
+            "name": book_data["name"],
+            "year": book_data["year"],
+            "author_id": author.id if author is not None else None,
+        }
+        book, not_created = get_or_create(session, Book, **book_kwargs)
         if not_created:
-            update_if_update_flag(session, book, book_data, update_flag)
+            up += update_if_update_flag(session, book, book_data, update_flag)
         else:
+            cr += 1
             logging.debug(f"Saving info about book: {book.as_dict}")
+    logging.info(f"Created: {cr} books AND Updated: {up} books")
 
 
 def update_if_update_flag(
     session: Session, book: Book, book_data: dict, update_flag: bool
-):
+) -> bool:
     """Update Book if update_flag is True"""
 
     logging.debug(f"Book already exists: {book.as_dict}")
@@ -144,3 +145,5 @@ def update_if_update_flag(
         book.name = book_data["name"]
         book.year = book_data["year"]
         session.commit()
+        return True
+    return False

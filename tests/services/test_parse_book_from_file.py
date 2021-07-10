@@ -76,45 +76,28 @@ def test_get_books_from_file__with_extension_zip__returns_2_file_in_zip(
     assert result == [{"name": "Book1"}, {"name": "Book1"}]
 
 
-@patch(
-    "src.services.parse_book_from_file.get_books_from_file",
-    return_value=[{"name": "Book1"}],
-)
-@patch("src.services.parse_book_from_file.get_files_from_dir", return_value=["/file/1"])
-def test_get_books_from_directory__works(mock_dir, mock_books_from_file):
+@patch("multiprocessing.pool.Pool.map", return_value=[[{"name": "Book1"}]])
+def test_get_books_from_directory__works(mock):
     dir_path = "/path/to/dir/"
     result = get_books_from_directory(dir_path)
-    calls = mock_books_from_file.call_args_list
-    assert calls == [call("/file/1")]
     assert result == [{"name": "Book1"}]
 
 
 @patch(
-    "src.services.parse_book_from_file.get_books_from_file",
-    return_value=[{"name": "Book1"}],
+    "multiprocessing.pool.Pool.map",
+    return_value=[[{"name": "Book1"}], [{"name": "Book1"}]],
 )
-@patch(
-    "src.services.parse_book_from_file.get_files_from_dir",
-    return_value=["/file/1", "/file/2"],
-)
-def test_get_books_from_directory__works_with_2_file(mock_dir, mock_books_from_file):
+def test_get_books_from_directory__works_with_2_file(mock):
     dir_path = "/path/to/dir/"
     result = get_books_from_directory(dir_path)
-    calls = mock_books_from_file.call_args_list
-    assert calls == [call("/file/1"), call("/file/2")]
     assert result == [{"name": "Book1"}, {"name": "Book1"}]
 
 
 @patch(
-    "src.services.parse_book_from_file.get_books_from_file",
-    return_value=[{"name": "Book1"}, {"name": "Book1"}],
+    "multiprocessing.pool.Pool.map",
+    return_value=[[{"name": "Book1"}], [{"name": "Book1"}]],
 )
-@patch("src.services.parse_book_from_file.get_files_from_dir", return_value=["/file/1"])
-def test_get_books_from_directory__works_if_get_books_from_file_return_2_books(
-    mock_dir, mock_books_from_file
-):
+def test_get_books_from_directory__works_if_get_books_from_file_return_2_books(mock):
     dir_path = "/path/to/dir/"
     result = get_books_from_directory(dir_path)
-    calls = mock_books_from_file.call_args_list
-    assert calls == [call("/file/1")]
     assert result == [{"name": "Book1"}, {"name": "Book1"}]

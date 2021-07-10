@@ -58,7 +58,6 @@ def validate_file_path(path: Union[str, Path]) -> Path:
 
 def main():
     logging.debug(f"Called {sys.argv[0]} with {sys.argv[1:]}")
-
     args = parse_args(sys.argv[1:])
     books = find_books(args.dir_path, args.book_path)
     if books is None:
@@ -67,7 +66,6 @@ def main():
     logging.debug(f"Saving {len(books)} books")
     with session_scope() as session:
         create_books_and_authors(session, books, args.flag)
-    logging.info(f"Saved {len(books)} books")
 
 
 if __name__ == "__main__":

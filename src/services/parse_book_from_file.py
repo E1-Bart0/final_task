@@ -1,4 +1,7 @@
 import logging
+import os
+from itertools import chain
+from multiprocessing import Pool
 from pathlib import Path
 from typing import Optional, Sequence, Union
 
@@ -48,13 +51,12 @@ def get_books_from_file(file: Optional[Union[str, Path]]) -> Sequence[dict]:
         logging.warning(err, exc_info=True)
 
 
-def get_books_from_directory(dir_path: Optional[Union[str, Path]]) -> Sequence[dict]:
+def get_books_from_directory(dir_path: Optional[Union[str, Path]]) -> list[dict]:
     """
     Find info about books in all files in the specified directory
 
     :return [{'name': str, 'author_first_name': str,'author_last_name': str, 'year': int}, ...]
     """
-    books = []
-    for file in get_files_from_dir(dir_path):
-        books += get_books_from_file(file)
-    return books
+    with Pool(os.cpu_count()) as pool:
+        books = pool.map(get_books_from_file, get_files_from_dir(dir_path))
+        return list(chain(*books))

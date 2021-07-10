@@ -1,5 +1,3 @@
-from typing import Optional
-
 from sqlalchemy import Column, ForeignKey, Index, Integer, String, UniqueConstraint
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import backref, configure_mappers, relationship
@@ -58,11 +56,6 @@ class Book(Base):
         ),
         Index("_book_index", "name", "year", "author_id"),
     )
-
-    def __init__(self, name: str, year: Optional[int], author_id: Optional[int]):
-        self.name = name
-        self.year = year
-        self.author_id = author_id
 
     @hybrid_property
     def as_dict(self) -> dict:
